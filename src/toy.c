@@ -24,9 +24,16 @@ void *turn_on(void *args){
 }
 
 
+
 // Essa função recebe como argumento informações e deve iniciar os brinquedos.
 void open_toys(toy_args *args){
     // Sua lógica aqui
+    /*entrando no array de brinquedos*/    
+    for (int i = 0; i < args->n; i++)
+    {
+        pthread_t brinquedo = args->toys[i]->thread;
+        pthread_create(&brinquedo, 0, &turn_on, NULL);
+    }
 }
 
 // Desligando os brinquedos
