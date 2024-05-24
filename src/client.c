@@ -47,7 +47,19 @@ void queue_enter(client_t *self){
 
 // Essa função recebe como argumento informações sobre o cliente e deve iniciar os clientes.
 void open_gate(client_args *args){
-    // Sua lógica aqui
+    pthread_t cliente[args->n];  // criando o array de threads com os clientes
+    for (int i = 0; i < args->n; i++) {  // percorrendo o número de clientes
+        cliente[i] = args->clients[i]->toys[i]->thread;  // criando uma thread para cara cliente
+        if (pthread_create(&cliente[i], 0, &enjoy, NULL) != 0) {  // criando a thread passando os argumentos do enjoy
+            perror("Não foi possivel criar a thread clientes");
+        }
+    }
+    // fazendo os joins dos clientes
+    for (int i = 0; i < args->n; i++) {
+        if (pthread_join(cliente[i], NULL) != 0) {  // verifica se foi possivel fazer o join
+            perror("Erro foi fazer o join dos clientes");
+        }
+    }
 }
 
 // Essa função deve finalizar os clientes
