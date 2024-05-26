@@ -12,7 +12,7 @@
 
 
 #define MAX_CAPACITY_TOY    10  // Capacidade maxima dos brinquedos.
-#define MIN_CAPACITY_TOY    5   // Capacidade minima dos brinquedos.
+#define MIN_CAPACITY_TOY    1   // Capacidade minima dos brinquedos.
 #define MAX_COINS           20  // Maximo de moedas que um cliente pode comprar
 
 #define DEBUG               1   //  Alterne (0 or 1) essa macro se voce espera desabilitar todas as mensagens de debug.
@@ -28,7 +28,8 @@ typedef struct ticket{
 typedef struct toy{
   int id;                   // O id de um brinquedo.
   int capacity;             // A capacidade total de um brinquedo.
-  pthread_t thread;         // A thread de um brinquedo.
+  pthread_t thread;         // A thread de um brinquedo
+  sem_t sem_vagas;
 } toy_t;
 
 /* Adicione as estruturas de sincronização que achar necessárias */
