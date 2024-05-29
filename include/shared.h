@@ -13,5 +13,7 @@
  *          ATENÇÃO               *
  *********************************/
 extern Queue *gate_queue;
-
+extern int toys_map_capacity[MAX_CAPACITY_TOY];
+extern int clientes_no_parque;
+extern int clientes_na_fila;
 #endif

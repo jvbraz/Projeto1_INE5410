@@ -119,6 +119,9 @@ int main(int argc, char *argv[]){
     toys_args->toys = toys;
     toys_args->n = _config.toys;
 
+    //Inicializa contador de clientes
+    clientes_na_fila = _config.clients;
+    
     // Ligando os brinquedos.
     open_toys(toys_args);
     // Os turistas entram no parque.

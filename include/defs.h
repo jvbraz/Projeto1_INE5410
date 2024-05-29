@@ -28,8 +28,10 @@ typedef struct ticket{
 typedef struct toy{
   int id;                   // O id de um brinquedo.
   int capacity;             // A capacidade total de um brinquedo.
+  int tempo_exec;           // Tempo de execução do brinquedo.
+  time_t timer;             // Contador de clientes no brinquedo.
+  sem_t sem_clientes_no_brinquedo; // Semáforo para controlar a quantidade de clientes no brinquedo.
   pthread_t thread;         // A thread de um brinquedo
-  sem_t sem_vagas;
 } toy_t;
 
 /* Adicione as estruturas de sincronização que achar necessárias */

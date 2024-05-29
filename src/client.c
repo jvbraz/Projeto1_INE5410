@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <stdlib.h> 
+#include <unistd.h>
 
 #include "defs.h"
 #include "client.h"
@@ -15,11 +16,7 @@
 
 // Thread que implementa o fluxo do cliente no parque.
 void *enjoy(void *arg){
-
-    //Sua lógica aqui
-
-
-    debug("[EXIT] - O turista saiu do parque.\n");
+    debug("Cliente entrou\n");
     pthread_exit(NULL);
 }
 
