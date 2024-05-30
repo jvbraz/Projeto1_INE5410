@@ -2,7 +2,6 @@
 #define __SHARED_H__
 
 #include <defs.h>
-
 // Você pode declarar novas funções (ou variaveis compartilhadas) aqui
 
 
@@ -19,4 +18,5 @@ extern int clientes_na_fila;
 extern int clientes_no_parque;
 extern pthread_mutex_t mutex_fila;
 extern sem_t sem_queue;
+extern sem_t sem_brinquedos[];
 #endif

@@ -70,7 +70,7 @@ void open_toys(toy_args *args) {
         toys_map_capacity[i] = brinquedos[i]->capacity;
 
         //Iniciando o semáforo do brinquedo com capacidade total
-        sem_init(&brinquedos[i]->sem_clientes_no_brinquedo,0,brinquedos[i]->capacity);
+        sem_init(&sem_brinquedos[brinquedos],0,brinquedos[i]->capacity);
 
         //definindo um tempo de execução para o brinquedo
         brinquedos[i]->tempo_exec = rand() % 20;

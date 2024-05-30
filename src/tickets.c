@@ -12,6 +12,13 @@
 #include <queue.h>
 #include "shared.h"
 
+//funções declaradas
+void atender_cliente(int id) {
+    
+    while (is_queue_empty(clientes_na_fila)) {
+        
+    }
+}
 
 // Thread que implementa uma bilheteria
 void *sell(void *args){

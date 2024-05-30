@@ -44,8 +44,7 @@ void *enjoy(void *arg) {
 
 // Função onde o cliente compra as moedas para usar os brinquedos
 void buy_coins(client_t *self) {
-    self->coins = rand() % MAX_COINS + 1;
-    //Implementar com bilheteri
+    self->coins = rand() % MAX_COINS;
 }
 
 // Função onde o cliente espera a liberação da bilheteria para adentrar ao parque.
