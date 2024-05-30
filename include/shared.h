@@ -16,7 +16,9 @@ extern int toys_map_capacity[MAX_CAPACITY_TOY];
 extern int total_clientes;
 extern int clientes_na_fila;
 extern int clientes_no_parque;
+extern int total_brinquedos;
 extern pthread_mutex_t mutex_fila;
 extern sem_t sem_queue;
-extern sem_t sem_brinquedos[];
+extern sem_t *sem_brinquedos;
+
 #endif

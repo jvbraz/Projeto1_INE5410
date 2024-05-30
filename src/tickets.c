@@ -13,18 +13,24 @@
 #include "shared.h"
 
 //funções declaradas
-void atender_cliente(int id) {
+void atender_cliente(ticket_t *funcionario) {
+    while (!is_queue_empty(gate_queue)) {
+        //int id_funcionario = funcionario->id;  // pegar o id do funcinario atendende
+        //int cliente = dequeue(gate_queue);  // chamar o cliente (tirar da fila)
+        //adicionar um mutex
+        //int total_coins = buy_coins(cliente);  // comprar as moedas
     
-    while (is_queue_empty(clientes_na_fila)) {
+        //fechar o mutex
+        //printf("O cliente %d comprou %d tickets com o funcionario %d", cliente, total_coins, id_funcionario);
         
     }
 }
 
 // Thread que implementa uma bilheteria
 void *sell(void *args){
-
+    ticket_t *funcionario = (ticket_t *)args;
     debug("[INFO] - Bilheteria Abriu!\n");
-
+    atender_cliente(funcionario);
     pthread_exit(NULL);
 }
 
@@ -36,7 +42,7 @@ void open_tickets(tickets_args *args){  // lista de funcionario, qtd
     for (int i = 0; i < numero_funcionarios; i++) {
         funcionario[i] = args->tickets[i]->thread;  // recebendo a thread da struct
         // verificando se for possivel criar a thread
-        if (pthread_create(&funcionario[i], 0, &sell, NULL) != 0) {
+        if (pthread_create(&funcionario[i], 0, &sell, (void *)(args->tickets[i])) != 0) {
             perror("erro ao criar a thread funcionarios");
         }
     }

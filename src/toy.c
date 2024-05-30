@@ -31,7 +31,7 @@ void *turn_on(void *args) {
             //Reiniciando a capacidade do brinquedo
             for (int i = 0; i < toy->capacity; i++)
             {
-                sem_post(&toy->sem_clientes_no_brinquedo);
+                sem_post(&sem_brinquedos[toy->id]);
             }
             toy->capacity = toys_map_capacity[toy->id];
             toy->timer = 0;
@@ -47,7 +47,7 @@ void *turn_on(void *args) {
             //Reiniciando a capacidade do brinquedo
             for (int i = 0; i < toy->capacity; i++)
             {
-                sem_post(&toy->sem_clientes_no_brinquedo);
+                sem_post(&sem_brinquedos[toy->id]);
             }
             toy->capacity = toys_map_capacity[toy->id];
             toy->timer = 0;
@@ -64,13 +64,21 @@ void open_toys(toy_args *args) {
     int total_brinquedos = args->n;
     toy_t **brinquedos = args->toys;
 
+    //Iniciando o array de semáforos dos brinquedos
+    sem_brinquedos = (sem_t *)malloc(total_brinquedos * sizeof(sem_t));
+    if(sem_brinquedos == NULL)
+    {
+        perror("Erro ao alocar memória para o semaforo de brinquedos");
+        exit(EXIT_FAILURE);
+    }
+
     for (int i = 0; i < total_brinquedos; i++)
     {
         //guardando na variavel global a capacidade do brinquedo
         toys_map_capacity[i] = brinquedos[i]->capacity;
 
         //Iniciando o semáforo do brinquedo com capacidade total
-        sem_init(&sem_brinquedos[brinquedos],0,brinquedos[i]->capacity);
+        sem_init(&sem_brinquedos[i], 0, brinquedos[i]->capacity);
 
         //definindo um tempo de execução para o brinquedo
         brinquedos[i]->tempo_exec = rand() % 20;

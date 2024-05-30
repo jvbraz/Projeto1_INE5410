@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "shared.h": "c",
-        "queue.h": "c"
+        "queue.h": "c",
+        "defs.h": "c"
     }
 }
