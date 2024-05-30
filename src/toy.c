@@ -18,13 +18,9 @@ void *turn_on(void *args) {
     //Brinquedo que esta sendo executado
     toy_t *toy = (toy_t *)args;
 
-    //Tempo de espera minimo para ligar o brinquedo
-    int tempo_espera = 15;
-    
     //Fica no loop até todos os clientes sairem do parque
     while (clientes_no_parque > 0 || clientes_na_fila > 0)
     {
-
         //Se o brinquedo ficar cheio, ou passar um tempo minimo, o brinquedo deve ser ligado
         if (toy->capacity == 0) 
         {
@@ -42,7 +38,7 @@ void *turn_on(void *args) {
             debug("Brinquedo [%d] desligado\n", toy->id);
         }
         //Se o tempo minimo foi alcançado e pelo menos um cliente entrou no brinquedo, o brinquedo deve ser ligado
-        else if(toy->timer >= tempo_espera && toy->capacity < toys_map_capacity[toy->id])
+        else if(toy->timer >= toy->tempo_espera && toy->capacity < toys_map_capacity[toy->id])
         {
             debug("Brinquedo [%d] ligado\n", toy->id);
             //Espera um tempo para a "execução" do brinquedo
@@ -82,10 +78,15 @@ void open_toys(toy_args *args) {
         //Iniciando o timer do brinquedo
         brinquedos[i]->timer = 0;
 
+        //Iniciando o tempo de espera do brinquedo
+        brinquedos[i]->tempo_espera = brinquedos[i]->tempo_exec/2;
 
         //Criando a thread para o brinquedo
         pthread_create(&brinquedos[i]->thread, NULL, &turn_on, brinquedos[i]);
         debug("Brinquedo [%d] iniciado\n", brinquedos[i]->id);
+        if (pthread_create(&brinquedos[i]->thread, 0, &turn_on, NULL) != 0) {  // criando a thread passando os argumentos do enjoy
+            perror("Não foi possivel criar a thread clientes");
+        }
     }
 }
 

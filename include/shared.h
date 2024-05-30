@@ -14,6 +14,9 @@
  *********************************/
 extern Queue *gate_queue;
 extern int toys_map_capacity[MAX_CAPACITY_TOY];
-extern int clientes_no_parque;
+extern int total_clientes;
 extern int clientes_na_fila;
+extern int clientes_no_parque;
+extern pthread_mutex_t mutex_fila;
+extern sem_t sem_queue;
 #endif

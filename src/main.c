@@ -118,9 +118,6 @@ int main(int argc, char *argv[]){
     // Recebe os argumentos para os brinquedos.
     toys_args->toys = toys;
     toys_args->n = _config.toys;
-
-    //Inicializa contador de clientes
-    clientes_na_fila = _config.clients;
     
     // Ligando os brinquedos.
     open_toys(toys_args);
