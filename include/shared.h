@@ -18,7 +18,10 @@ extern int clientes_na_fila;
 extern int clientes_no_parque;
 extern int total_brinquedos;
 extern pthread_mutex_t mutex_fila;
+extern pthread_mutex_t mutex_sai_fila;
 extern sem_t sem_queue;
 extern sem_t *sem_brinquedos;
+extern sem_t sem_moedas;
+extern sem_t sem_funcionarios;
 
 #endif

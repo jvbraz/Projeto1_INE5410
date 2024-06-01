@@ -24,8 +24,7 @@ void *enjoy(void *arg) {
     queue_enter(cliente);
     
     // Espera a sua vez de comprar os tickets
-    wait_ticket(cliente);
-
+    //wait_ticket(cliente);
     buy_coins(cliente);
     
     //Entra no parque e gasta as moedas
