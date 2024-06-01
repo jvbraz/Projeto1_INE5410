@@ -38,6 +38,13 @@ void *enjoy(void *arg) {
         //pthread_mutex_unlock(&mutex_cliente_no_brinquedo);
     }
 
+    // Finaliza a thread
+    pthread_mutex_lock(&mutex_finaliza_clientes);
+    total_clientes--;
+    if (total_clientes == 0) {
+        pthread_cond_signal(&cond_finaliza_clientes);
+    }
+    pthread_mutex_unlock(&mutex_finaliza_clientes);
     pthread_exit(NULL);
 }
 
@@ -78,6 +85,12 @@ void queue_enter(client_t *self) {
 // Essa função recebe como argumento informações sobre o cliente e deve iniciar os clientes.
 void open_gate(client_args *args) {
     pthread_t cliente[args->n]; // criando o array de threads com os clientes
+    // Iniciando o mutex e cond para a finalização dos clientes
+    pthread_mutex_init(&mutex_finaliza_clientes, NULL);
+    pthread_cond_init(&cond_finaliza_clientes, NULL);
+
+    // Guardando o total de clientes
+    total_clientes = args->n;
 
     for (int i = 0; i < args->n; i++) { // percorrendo o número de clientes
         if (pthread_create(&cliente[i], NULL, enjoy, (void *)(args->clients[i])) != 0) { // criando a thread passando os argumentos do enjoy
@@ -85,16 +98,24 @@ void open_gate(client_args *args) {
         }
     }
 
-    // Fazendo os joins das threads dos clientes
-    for (int i = 0; i < args->n; i++) {
-        if (pthread_join(cliente[i], NULL) != 0) { // verifica se foi possível fazer o join
-            perror("Erro ao fazer o join das threads dos clientes");
-        }
-    }
 }
 
 // Essa função deve finalizar os clientes
 void close_gate() {
-   // Lógica para finalizar os clientes, se necessário
-   // Pode incluir sinalização ou interrupção das threads em execução, caso aplicável
+    // Esperando as condições para finalizar os clientes
+    pthread_mutex_lock(&mutex_finaliza_clientes);
+    while (total_clientes > 0) {
+        pthread_cond_wait(&cond_finaliza_clientes, &mutex_finaliza_clientes);
+    }
+    pthread_mutex_unlock(&mutex_finaliza_clientes);
+
+    debug("[INFO] - Todos os clientes saíram do parque!\n");
+
+    // Destruindo os mutexes
+    pthread_mutex_destroy(&mutex_finaliza_clientes);
+
+    // Destruindo as condições
+    pthread_cond_destroy(&cond_finaliza_clientes);
+
+    // Destruindo os semáforo   
 }

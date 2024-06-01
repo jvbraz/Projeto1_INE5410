@@ -52,9 +52,17 @@ void *turn_on(void *args) {
             toy->capacity = toys_map_capacity[toy->id];
             toy->timer = 0;
             debug("Brinquedo [%d] desligado\n", toy->id);
-        }
-        
+        }        
     }
+
+    //Finalizando a thread
+    pthread_mutex_lock(&mutex_finaliza_brinquedos);
+    total_brinquedos--;
+    if(total_brinquedos == 0)
+    {
+        pthread_cond_signal(&cond_finaliza_brinquedos);
+    }
+    pthread_mutex_unlock(&mutex_finaliza_brinquedos);
     pthread_exit(NULL);
 }
 
@@ -64,7 +72,11 @@ void open_toys(toy_args *args) {
     int total_brinquedos = args->n;
     toy_t **brinquedos = args->toys;
 
-    //Iniciando o array de semáforos dos brinquedos
+    //Iniciando os mutexes e condições 
+    pthread_mutex_init(&mutex_finaliza_brinquedos, NULL);
+    pthread_cond_init(&cond_finaliza_brinquedos, NULL);
+
+    //Iniciando o array de semáforos dos brinquedos e evitando erros de alocação
     sem_brinquedos = (sem_t *)malloc(total_brinquedos * sizeof(sem_t));
     if(sem_brinquedos == NULL)
     {
@@ -72,6 +84,7 @@ void open_toys(toy_args *args) {
         exit(EXIT_FAILURE);
     }
 
+    //Iniciando os brinquedos
     for (int i = 0; i < total_brinquedos; i++)
     {
         //guardando na variavel global a capacidade do brinquedo
@@ -81,7 +94,7 @@ void open_toys(toy_args *args) {
         sem_init(&sem_brinquedos[i], 0, brinquedos[i]->capacity);
 
         //definindo um tempo de execução para o brinquedo
-        brinquedos[i]->tempo_exec = rand() % 20;
+        brinquedos[i]->tempo_exec = rand() % 8 + 1;
 
         //Iniciando o timer do brinquedo
         brinquedos[i]->timer = 0;
@@ -90,15 +103,24 @@ void open_toys(toy_args *args) {
         brinquedos[i]->tempo_espera = brinquedos[i]->tempo_exec/2;
 
         //Criando a thread para o brinquedo
-        pthread_create(&brinquedos[i]->thread, NULL, &turn_on, brinquedos[i]);
-        debug("Brinquedo [%d] iniciado\n", brinquedos[i]->id);
-        if (pthread_create(&brinquedos[i]->thread, 0, &turn_on, NULL) != 0) {  // criando a thread passando os argumentos do enjoy
+        if (pthread_create(&brinquedos[i]->thread, NULL, &turn_on, brinquedos[i]) != 0) {  // criando a thread passando os argumentos do enjoy
             perror("Não foi possivel criar a thread clientes");
         }
+        debug("Brinquedo [%d] iniciado\n", brinquedos[i]->id);
     }
 }
 
 // Desligando os brinquedos
 void close_toys(){
-    // Sua lógica aqui
+    //Espera todos os brinquedos serem finalizados
+    pthread_mutex_lock(&mutex_finaliza_brinquedos);
+    while (total_brinquedos > 0)
+    {
+        pthread_cond_wait(&cond_finaliza_brinquedos, &mutex_finaliza_brinquedos);
+    }
+    pthread_mutex_unlock(&mutex_finaliza_brinquedos);
+
+    debug("Todos os brinquedos foram finalizados\n");
+    pthread_mutex_destroy(&mutex_finaliza_brinquedos);
+    pthread_cond_destroy(&cond_finaliza_brinquedos);
 }

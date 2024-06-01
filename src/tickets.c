@@ -23,6 +23,15 @@ void atender_cliente(ticket_t *funcionario) {
         printf("cliente %d comprou tickets\n", cliente);  // MENSAGEM PARA DEBUGAR
         sem_post(&sem_funcionarios);  // funcionario liberado
     }
+
+    //Finalizando a thread
+    pthread_mutex_lock(&mutex_finaliza_funcionarios);
+    total_funcionarios--;
+    if(total_funcionarios == 0)
+    {
+        pthread_cond_signal(&cond_finaliza_funcionarios);
+    }
+    pthread_mutex_unlock(&mutex_finaliza_funcionarios);
 }
 
 // Thread que implementa uma bilheteria
@@ -38,6 +47,13 @@ void open_tickets(tickets_args *args){  // lista de funcionario, qtd
     // recuperando o número de funcionarios para tornar o código mais legivel
     int numero_funcionarios = args->n;
 
+    // Iniciando o mutex e cond para a finalização dos funcionarios
+    pthread_mutex_init(&mutex_finaliza_funcionarios, NULL);
+    pthread_cond_init(&cond_finaliza_funcionarios, NULL);
+    
+    // Guardando o total de funcionários
+    total_funcionarios = numero_funcionarios;
+
     // iniciando o semaforo para controlar os funcionarios
     sem_init(&sem_funcionarios, 0, numero_funcionarios);
     // iniciando o semaforo para controlar as moedas
@@ -46,25 +62,37 @@ void open_tickets(tickets_args *args){  // lista de funcionario, qtd
     pthread_mutex_init(&mutex_sai_fila, NULL);
 
     pthread_t funcionario[numero_funcionarios];  // array de threads
-    for (int i = 0; i < numero_funcionarios; i++) {
+    for (int i = 0; i < args->n; i++) {
         funcionario[i] = args->tickets[i]->thread;  // recebendo a thread da struct
         // verificando se for possivel criar a thread
         if (pthread_create(&funcionario[i], 0, &sell, (void *)(args->tickets[i])) != 0) {
             perror("erro ao criar a thread funcionarios");
         }
     }
-    // fazendo o join de cada thread
-    for (int i = 0; i < numero_funcionarios; i++) {
-        if (pthread_join(funcionario[i], NULL)) {  // verificando se for possivel fazer o join
-            perror("Não foi possivel fazer o join da thread funcionarios");
-        }
-    }
+
+    
 }
 
 
 // Essa função deve finalizar a bilheteria
 void close_tickets(){
-    sem_destroy(&sem_funcionarios);
+    // Esperando as condições para finalizar os tickets
+    pthread_mutex_lock(&mutex_finaliza_funcionarios);
+    while (total_funcionarios > 0)
+    {
+        pthread_cond_wait(&cond_finaliza_funcionarios, &mutex_finaliza_funcionarios);
+    }
+    pthread_mutex_unlock(&mutex_finaliza_funcionarios);    
+
+    debug("[INFO] - Todas as bilheterias fecharam!\n");
+    // Destruindo os mutexes
     pthread_mutex_destroy(&mutex_sai_fila);
+    pthread_mutex_destroy(&mutex_finaliza_funcionarios);
+
+    //Destruindo os semaforos
+    sem_destroy(&sem_funcionarios);
     sem_destroy(&sem_moedas);
+
+    // Destruindo a condição de finalização
+    pthread_cond_destroy(&cond_finaliza_funcionarios);
 }
