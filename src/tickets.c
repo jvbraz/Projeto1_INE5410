@@ -14,15 +14,14 @@
 
 //funções declaradas
 void atender_cliente(ticket_t *funcionario) {
-    while (!is_queue_empty(gate_queue)) {  // enquanto a fila não estiver fazia
-        pthread_mutex_lock(&mutex_sai_fila);  // lock para não pegar duas vezes a mesma pessoa
-        int cliente = dequeue(gate_queue);  // recuperar o id do cliente
-        pthread_mutex_unlock(&mutex_sai_fila);
-        sem_wait(&sem_funcionarios);  // falar que um funcionario já está atendendo alguem
-        sem_post(&sem_moedas);  // libera um cliente a comprar moedas(não finalizado)
-        printf("cliente %d comprou tickets\n", cliente);  // MENSAGEM PARA DEBUGAR
-        sem_post(&sem_funcionarios);  // funcionario liberado
-    }
+    sem_wait(&sem_funcionarios);  // falar que um funcionario já está atendendo alguem
+    pthread_mutex_lock(&mutex_sai_fila);  // lock para não pegar duas vezes a mesma pessoa
+    int cliente = dequeue(gate_queue);  // recuperar o id do cliente
+    pthread_mutex_unlock(&mutex_sai_fila);
+    sem_post(&sem_moedas);  // libera um cliente a comprar moedas(não finalizado)
+    printf("cliente %d comprou tickets do funcionario %d\n", cliente, funcionario->id);  // MENSAGEM PARA DEBUGAR
+    sem_post(&sem_funcionarios);  // funcionario liberado
+    
 
     //Finalizando a thread
     pthread_mutex_lock(&mutex_finaliza_funcionarios);
@@ -37,7 +36,7 @@ void atender_cliente(ticket_t *funcionario) {
 // Thread que implementa uma bilheteria
 void *sell(void *args){
     ticket_t *funcionario = (ticket_t *)args;
-    debug("[INFO] - Bilheteria Abriu!\n");
+    debug("[INFO] - Bilheteria %d Abriu!\n", funcionario->id);
     atender_cliente(funcionario);
     pthread_exit(NULL);
 }
